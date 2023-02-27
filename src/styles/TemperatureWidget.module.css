@@ -1,0 +1,12 @@
+.tempInt {
+    font-size: 10em;
+    text-align: right;
+    color: whitesmoke;
+}
+
+.tempDec {
+    font-size: 5em;
+    text-align: left;
+    vertical-align: top;
+    color: whitesmoke;
+}
