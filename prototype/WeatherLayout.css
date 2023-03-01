@@ -1,0 +1,65 @@
+.display {
+    display: grid;
+    height: 100%;
+    grid-template-columns: 2fr 1fr;
+    grid-template-rows: 4fr 2fr 1fr;
+}
+.humidity-widget {
+    grid-column: 1; /* left big column, top row */
+    background-color: aqua;
+}
+.temperature-widgets {
+    display: grid; /* right column spanning all three rows */
+    grid-column: 2;
+    grid-row: 1 / 4;
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr 1fr;
+    text-align: right;
+}
+.temperature-widget-top {
+    grid-column: 1; /* top row inside temperature-widgets grid */
+    grid-row: 1;
+    background-color: blue;
+}
+.temperature-widget-bottom {
+    grid-column: 1; /* bottom row inside temperature-widgets grid */
+    grid-row: 2;
+    background-color: blueviolet;
+}
+.temp-int {
+    font-size: 7em;
+}
+.temp-dec {
+    font-size: 4em;
+    vertical-align: top;
+}
+.wind-widgets {
+    display: grid;  /* first big column, middle row */
+    grid-column: 1;
+    grid-row: 2;
+    grid-template-columns: 1fr 1fr;
+}
+.wind-widget-left {
+    grid-column: 1; /* left column inside wind-widgets grid */
+    background-color: yellow;
+}
+.wind-widget-right {
+    grid-column: 2; /* right column inside wind-widgets grid */
+    background-color: yellowgreen;
+}
+.time-widget {
+    display: grid;
+    grid-column: 1; /* left big column and bottom row */
+    grid-row: 3;
+    grid-template-columns: 1fr 1fr;
+    font-size: 2em;
+    background-color: pink;
+}
+.time-component {
+    grid-column: 1;
+    text-align: left;
+}
+.date-component {
+    grid-column: 2;
+    text-align: right;
+}
