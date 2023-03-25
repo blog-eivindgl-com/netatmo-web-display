@@ -1,3 +1,13 @@
+.temperatureWidgetTop {
+    grid-column: 1; /* top row inside temperature-widgets grid */
+    grid-row: 1;
+    background-color: blue;
+}
+.temperatureWidgetBottom {
+    grid-column: 1; /* bottom row inside temperature-widgets grid */
+    grid-row: 2;
+    background-color: blueviolet;
+}
 .tempInt {
     font-size: 10em;
     text-align: right;

@@ -1,0 +1,8 @@
+.windWidgetLeft {
+    grid-column: 1; /* left column inside wind-widgets grid */
+    background-color: yellow;
+}
+.windWidgetRight {
+    grid-column: 2; /* right column inside wind-widgets grid */
+    background-color: yellowgreen;
+}

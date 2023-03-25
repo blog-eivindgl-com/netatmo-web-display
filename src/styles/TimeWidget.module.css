@@ -1,0 +1,13 @@
+.timeComponent {
+    grid-column: 1;
+    font-size: 5em;
+    text-align: left;
+    color: whitesmoke;
+}
+
+.dateComponent {
+    grid-column: 2;
+    font-size: 5em;
+    text-align: right;
+    color: whitesmoke;
+}
