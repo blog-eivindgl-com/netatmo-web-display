@@ -1,0 +1,31 @@
+@page "/display"
+@attribute [StreamRendering]
+@inject NetatmoWebDisplay.Services.IDisplayService _displayService;
+
+@if(display == null)
+{
+    <p><em>Loading....</em></p>
+}
+else
+{
+    foreach (var widget in display.Widgets)
+    {
+        switch(widget.Type)
+        {
+            case "temperature":
+                <p><span>@widget.Description: </span><span>@widget.Value</span></p>
+                break;
+        }
+    }
+}
+
+@code
+{
+    private NetatmoWebDisplay.Model.Display? display = null;
+
+    protected override async Task OnInitializedAsync()
+    {
+        display = await _displayService.GetDisplay();
+        await base.OnInitializedAsync();
+    }
+}
