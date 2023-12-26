@@ -1,4 +1,5 @@
 @page "/display"
+@using NetatmoWebDisplay.Model;
 @attribute [StreamRendering]
 @inject NetatmoWebDisplay.Services.IDisplayService _displayService;
 
@@ -8,24 +9,58 @@
 }
 else
 {
+    var topTemperatureWidgets = new List<Widget>();
+    var bottomTemperatureWidgets = new List<Widget>();
     foreach (var widget in display.Widgets)
     {
         switch(widget.Type)
         {
             case "temperature":
-                <p><span>@widget.Description: </span><span>@widget.Value</span></p>
+                if (widget.Description == "Stua" || widget.Description == "Soverommet" || widget.Description == "Serverskapet")
+                {
+                    topTemperatureWidgets.Add(widget);
+                }
+                else if (widget.Description == "Vestveggen ute" || widget.Description == "Østveggen ute")
+                {
+                    bottomTemperatureWidgets.Add(widget);
+                }
                 break;
         }
     }
+
+    <p><TemperatureWidget Widgets="@topTemperatureWidgets" /></p>
+    <p><TemperatureWidget Widgets="@bottomTemperatureWidgets" /></p>
 }
 
 @code
 {
     private NetatmoWebDisplay.Model.Display? display = null;
+    private bool _shouldRefresh = true;
+    private const int RefreshInterval = 1000;
+
+    private async Task LoadDataAsync()
+    {
+        display = await _displayService.GetDisplay();
+        _shouldRefresh = true;
+        this.StateHasChanged();
+        Thread.Sleep(RefreshInterval);
+        await LoadDataAsync();
+    }
+
+    protected override bool ShouldRender()
+    {
+        if (_shouldRefresh) 
+        {
+            _shouldRefresh = false;
+            return true;
+        }
+
+        return base.ShouldRender();
+    }
 
     protected override async Task OnInitializedAsync()
     {
-        display = await _displayService.GetDisplay();
+        await LoadDataAsync();
         await base.OnInitializedAsync();
     }
 }

@@ -1,0 +1,119 @@
+@using NetatmoWebDisplay.Model;
+
+<div @onclick="ChangeMode">
+    <div>
+        <span>@_intValue</span><span>@_decValue</span>
+    </div>
+    <div>
+        <span>@_description</span>
+    </div>
+</div>
+
+@code
+{
+    private string _description = "temperature";
+    private string _intValue = "0";
+    private string _decValue = "0°C";
+    private string _mode = "current";
+    private Dictionary<string, Widget> _modules = new Dictionary<string, Widget>();
+    private string? _selectedModule = null;
+    private bool _hasCycledThroughModule = false;
+    private DateTime _selectedModuleAt = DateTime.Now;
+
+    [Parameter]
+    public IEnumerable<Widget> Widgets { get; set; } = new List<Widget>();
+    [Parameter]
+    public string DefaultModule { get; set; } = "Stua";
+
+    protected override void OnParametersSet()
+    {
+        if (Widgets.Count() > 0)
+        {
+            foreach (var widget in Widgets)
+            {
+                UpdateModuleData(widget);
+            }
+
+            DrawWidget();
+        }
+
+        base.OnParametersSet();
+    }
+
+    public void DrawWidget()
+    {
+        if (_selectedModule == null)
+        {
+            _selectedModule = FindDefaultModule();
+
+            if (_selectedModule == null)
+            {
+                _selectedModule = _modules.Keys.FirstOrDefault();
+            }
+        }
+
+        if (_selectedModule != null)
+        {
+            var widget = _modules[_selectedModule];
+            switch(_mode)
+            {
+                case "min":
+                    SplitIntoIntAndDec(widget.MinValue);
+                    _description = widget.MinTime;
+                    break;
+                case "max":
+                    SplitIntoIntAndDec(widget.MaxValue);
+                    _description = widget.MaxTime;
+                    break;
+                default:
+                    SplitIntoIntAndDec(widget.Value);
+                    _description = widget.Description;
+                    break;
+            }
+        }
+    }
+
+    private void SplitIntoIntAndDec(string value)
+    {
+        _intValue = value.Substring(0, value.IndexOf('.'));
+        _decValue = value.Substring(value.IndexOf('.'));
+    }
+
+    private string? FindDefaultModule()
+    {
+        if (_modules.Keys.Contains("Stua")) return "Stua";
+        if (_modules.Keys.Contains("Vestveggen ute")) return "Vestveggen ute";
+        return null;
+    }
+
+    private void UpdateModuleData(Widget widget)
+    {
+        if(_modules.ContainsKey(widget.Description))
+        {
+            _modules[widget.Description] = widget;
+        }
+        else
+        {
+            _modules.Add(widget.Description, widget);
+        }
+    }
+
+    private void ChangeMode()
+    {
+        switch(_mode)
+        {
+            case "current":
+                _mode = "min";
+                break;
+            case "min":
+                _mode = "max";
+                break;
+            default:
+                _mode = "current";
+                _hasCycledThroughModule = true;
+                break;
+        }
+
+        DrawWidget();
+    }
+}
