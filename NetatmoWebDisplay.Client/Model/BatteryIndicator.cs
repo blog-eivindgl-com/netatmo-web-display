@@ -1,4 +1,4 @@
-namespace NetatmoWebDisplay.Model;
+namespace NetatmoWebDisplay.Client.Model;
 public class BatteryIndicator
 {
     public string ModuleName { get; set; }

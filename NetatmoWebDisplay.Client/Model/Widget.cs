@@ -1,4 +1,4 @@
-namespace NetatmoWebDisplay.Model;
+namespace NetatmoWebDisplay.Client.Model;
 public class Widget
 {
     public string Type { get; set; }

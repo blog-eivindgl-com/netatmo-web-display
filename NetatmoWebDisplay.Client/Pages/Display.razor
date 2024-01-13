@@ -1,7 +1,10 @@
 @page "/display"
-@using NetatmoWebDisplay.Model;
-@attribute [StreamRendering]
-@inject NetatmoWebDisplay.Services.IDisplayService _displayService;
+@rendermode InteractiveAuto
+@inject NetatmoWebDisplay.Client.Services.IDisplayService _displayService;
+@using NetatmoWebDisplay.Client.Model;
+@using NetatmoWebDisplay.Client.Components;
+
+<PageTitle>Display</PageTitle>
 
 @if(display == null)
 {
@@ -32,19 +35,18 @@ else
     <p><TemperatureWidget Widgets="@bottomTemperatureWidgets" /></p>
 }
 
-@code
-{
-    private NetatmoWebDisplay.Model.Display? display = null;
-    private bool _shouldRefresh = true;
+
+@code {
     private const int RefreshInterval = 1000;
+    private NetatmoWebDisplay.Client.Model.Display? display = null;
+    private bool _shouldRefresh = true;
+    private Timer _timer;
 
     private async Task LoadDataAsync()
     {
         display = await _displayService.GetDisplay();
         _shouldRefresh = true;
-        this.StateHasChanged();
-        Thread.Sleep(RefreshInterval);
-        await LoadDataAsync();
+        await InvokeAsync(() => StateHasChanged());
     }
 
     protected override bool ShouldRender()
@@ -60,7 +62,15 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        await LoadDataAsync();
+        _timer = new Timer(async _ =>
+        {
+            await LoadDataAsync();
+        }, null, TimeSpan.Zero, TimeSpan.FromMilliseconds(RefreshInterval));
         await base.OnInitializedAsync();
+    }
+
+    public void Dispose()
+    {
+        _timer?.Dispose();
     }
 }

@@ -1,6 +1,8 @@
 using Microsoft.Extensions.Options;
 using NetatmoWebDisplay.Options;
-using NetatmoWebDisplay.Model;
+using NetatmoWebDisplay.Client.Model;
+using NetatmoWebDisplay.Client.Services;
+using System.Net.Http.Json;
 
 namespace NetatmoWebDisplay.Services;
 
