@@ -1,0 +1,30 @@
+.temp-widget {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    grid-template-rows: 70px 70px 35px;
+    gap: 0px;
+}
+
+.temp-int-value {
+    grid-column: 1;
+    grid-row: 1 / 2;
+    font-size: 100px;
+    text-align: right;
+}
+
+.temp-dec-value {
+    grid-column: 2;
+    grid-row: 1;
+    font-size: 60px;
+}
+
+.temp-trend {
+    grid-column: 2;
+    grid-row: 2;
+}
+
+.temp-description {
+    grid-column: 1 / 2;
+    grid-row: 3;
+    text-align: right;
+}

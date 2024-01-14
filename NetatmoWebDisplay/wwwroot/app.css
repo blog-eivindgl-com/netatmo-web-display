@@ -1,5 +1,14 @@
 html, body {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    color: oldlace;
+}
+
+article {
+    background-color: #111111;
+}
+
+.table {
+    color: lightgray;
 }
 
 a, .btn-link {

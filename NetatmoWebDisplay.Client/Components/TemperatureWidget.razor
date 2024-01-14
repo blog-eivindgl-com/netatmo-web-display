@@ -1,12 +1,10 @@
 @using NetatmoWebDisplay.Client.Model;
 
-<div @onclick="ChangeMode">
-    <div>
-        <span>@_intValue</span><span>@_decValue</span>
-    </div>
-    <div>
-        <span>@_description</span>
-    </div>
+<div class="temp-widget" @onclick="ChangeMode">
+    <div class="temp-int-value">@_intValue</div>
+    <div class="temp-dec-value">@_decValue</div>
+    <img class="temp-trend" src="@_trend" />
+    <div class="temp-description">@_description</div>
 </div>
 
 @code
@@ -14,16 +12,17 @@
     private string _description = "temperature";
     private string _intValue = "0";
     private string _decValue = "0°C";
+    private string _trend = "images/wi-trend-flat.png";
     private string _mode = "current";
-    private Dictionary<string, Widget> _modules = new Dictionary<string, Widget>();
-    private string? _selectedModule = null;
+    private List<Widget> _modules = new List<Widget>();
+    private int? _selectedModule = null;
     private bool _hasCycledThroughModule = false;
-    private DateTime _selectedModuleAt = DateTime.Now;
+    private DateTime? _selectedModuleAt = null;
 
     [Parameter]
     public IEnumerable<Widget> Widgets { get; set; } = new List<Widget>();
     [Parameter]
-    public string DefaultModule { get; set; } = "Stua";
+    public string? DefaultModule { get; set; } = null;
 
     protected override void OnParametersSet()
     {
@@ -48,26 +47,44 @@
 
             if (_selectedModule == null)
             {
-                _selectedModule = _modules.Keys.FirstOrDefault();
+                _selectedModule = 0;
             }
+        }
+        else if (string.IsNullOrEmpty(DefaultModule) && (_selectedModuleAt == null || (DateTime.Now.Subtract(_selectedModuleAt.Value).TotalSeconds > 360)))
+        {
+            _selectedModule = FindModuleWithLowestTemperature();
         }
 
         if (_selectedModule != null)
         {
-            var widget = _modules[_selectedModule];
+            var widget = _modules[_selectedModule.Value];
             switch(_mode)
             {
                 case "min":
                     SplitIntoIntAndDec(widget.MinValue);
                     _description = widget.MinTime;
+                    _trend = "images/wi-min.png";
                     break;
                 case "max":
                     SplitIntoIntAndDec(widget.MaxValue);
                     _description = widget.MaxTime;
+                    _trend = "images/wi-max.png";
                     break;
                 default:
                     SplitIntoIntAndDec(widget.Value);
                     _description = widget.Description;
+                    switch(widget.Trend)
+                    {
+                        case "up":
+                            _trend = "images/wi-trend-up.png";
+                            break;
+                        case "down":
+                            _trend = "images/wi-trend-down.png";
+                            break;
+                        default:
+                            _trend = "images/wi-trend-flat.png";
+                            break;
+                    }
                     break;
             }
         }
@@ -79,27 +96,104 @@
         _decValue = value.Substring(value.IndexOf('.'));
     }
 
-    private string? FindDefaultModule()
+    private int? FindDefaultModule()
     {
-        if (_modules.Keys.Contains("Stua")) return "Stua";
-        if (_modules.Keys.Contains("Vestveggen ute")) return "Vestveggen ute";
+        if (!string.IsNullOrEmpty(DefaultModule))
+        {
+            for (int index = 0; index < _modules.Count; index++)
+            {
+                var m = _modules[index];
+
+                if (m.Description == DefaultModule)
+                {
+                    return index;
+                }
+            }
+        }
+
         return null;
+    }
+
+    private Decimal TemperatureAsDecimal(string temperature)
+    {
+        return Decimal.Parse(temperature.Substring(0, temperature.IndexOf('.') + 1));
+    }
+
+    private int? FindModuleWithLowestTemperature()
+    {
+        int? lowTempModule = null;
+        Decimal? lowTemp = null;
+
+        for(int index = 0; index < _modules.Count; index++)
+        {
+            var m = _modules[index];
+            Decimal temp = TemperatureAsDecimal(m.Value);
+
+            if (lowTempModule == null)
+            {
+                lowTempModule = index;
+                lowTemp = temp;
+            }
+            else
+            {
+                if (temp < lowTemp)
+                {
+                    lowTempModule = index;
+                    lowTemp = temp;
+                }
+            }
+        }
+
+        return lowTempModule;
     }
 
     private void UpdateModuleData(Widget widget)
     {
-        if(_modules.ContainsKey(widget.Description))
+        bool isReplaced = false;
+
+        for (int index = 0; index < _modules.Count; index++)
         {
-            _modules[widget.Description] = widget;
+            var m = _modules[index];
+
+            if (string.Equals(m.Description, widget.Description))
+            {
+                _modules[index] = widget;
+                isReplaced = true;
+            }
         }
-        else
+
+        if (!isReplaced)
         {
-            _modules.Add(widget.Description, widget);
+            _modules.Add(widget);
         }
     }
 
     private void ChangeMode()
     {
+        /* If more than one module is used by this widget,
+         * cycle through them and make sure not the one with
+         * lowest temperature is the one automatically displayed for a while
+         */
+        if (_hasCycledThroughModule && _modules.Count > 1)
+        {
+            if (_selectedModule == null)
+            {
+                _selectedModule = 0;
+            }
+            else
+            {
+                _selectedModule += 1;
+                
+                if (_selectedModule >= _modules.Count)
+                {
+                    _selectedModule = 0;
+                }
+            }
+
+            _selectedModuleAt = DateTime.Now;
+            _hasCycledThroughModule = false;
+        }
+
         switch(_mode)
         {
             case "current":

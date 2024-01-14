@@ -31,8 +31,19 @@ else
         }
     }
 
-    <p><TemperatureWidget Widgets="@topTemperatureWidgets" /></p>
-    <p><TemperatureWidget Widgets="@bottomTemperatureWidgets" /></p>
+    <div class="display">
+        <div class="main-part">
+            <div class="humidity-widget"></div>
+            <div class="wind-widget"></div>
+            <div class="gusts-widget"></div>
+            <div class="time-widget"></div>
+            <div class="date-widget"></div>
+        </div>
+        <div class="temperature-part">
+            <div class="temp-top-widget"><TemperatureWidget Widgets="@topTemperatureWidgets" /></div>
+            <div class="temp-bottom-widget"><TemperatureWidget Widgets="@bottomTemperatureWidgets" /></div>
+        </div>
+    </div>
 }
 
 
